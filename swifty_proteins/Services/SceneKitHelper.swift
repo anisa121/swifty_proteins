@@ -29,6 +29,11 @@ class SceneKitHelper {
         for bond in ligandModelDTO.bonds {
             let startPoint = ligandModelDTO.atoms[bond.originAtom - 1]
             let endPoint = ligandModelDTO.atoms[bond.targetAtom - 1]
+            let height: Float = (
+                pow(endPoint.xcoor - startPoint.xcoor, 2)
+                + pow(endPoint.ycoor - startPoint.ycoor, 2)
+                + pow(endPoint.zcoor - startPoint.zcoor, 2)
+            ).squareRoot()
 
             let midPoint = SCNVector3(x: (startPoint.xcoor + endPoint.xcoor) / 2,
                                       y: (startPoint.ycoor + endPoint.ycoor) / 2,
@@ -37,13 +42,26 @@ class SceneKitHelper {
             let bondNode = SCNNode(geometry: SCNCylinder(radius: 0.1, height: 1))
 
             bondNode.position = midPoint
-            moleculeNode.addChildNode(bondNode)
             bondNode.name = "\(bond.originAtom)-\(bond.targetAtom)"
             bondNode.look(at: .init(x: endPoint.xcoor,
                                     y: endPoint.ycoor,
                                     z: endPoint.zcoor),
                           up: moleculeNode.worldUp,
                           localFront: bondNode.worldUp)
+            bondNode.geometry?.firstMaterial?.diffuse.contents = switch bond.bondType {
+            case 1:
+                UIColor.white
+            case 2:
+                UIColor.blue
+            case 3:
+                UIColor.green
+            // Aromatic
+            case 4:
+                UIColor.red
+            default:
+                UIColor.orange
+            }
+            moleculeNode.addChildNode(bondNode)
         }
         
         return moleculeNode
