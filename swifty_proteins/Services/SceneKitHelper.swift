@@ -29,17 +29,17 @@ class SceneKitHelper {
         for bond in ligandModelDTO.bonds {
             let startPoint = ligandModelDTO.atoms[bond.originAtom - 1]
             let endPoint = ligandModelDTO.atoms[bond.targetAtom - 1]
-            let height: Float = (
+            let height = CGFloat((
                 pow(endPoint.xcoor - startPoint.xcoor, 2)
                 + pow(endPoint.ycoor - startPoint.ycoor, 2)
                 + pow(endPoint.zcoor - startPoint.zcoor, 2)
-            ).squareRoot()
+            ).squareRoot())
 
             let midPoint = SCNVector3(x: (startPoint.xcoor + endPoint.xcoor) / 2,
                                       y: (startPoint.ycoor + endPoint.ycoor) / 2,
                                       z: (startPoint.zcoor + endPoint.zcoor) / 2)
             
-            let bondNode = SCNNode(geometry: SCNCylinder(radius: 0.1, height: 1))
+            let bondNode = SCNNode(geometry: SCNCylinder(radius: 0.1, height: height))
 
             bondNode.position = midPoint
             bondNode.name = "\(bond.originAtom)-\(bond.targetAtom)"
