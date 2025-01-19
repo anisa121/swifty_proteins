@@ -13,17 +13,13 @@ class SceneKitHelper {
     func createNode(ligandModelDTO: LigandDTO) -> SCNNode {
         let moleculeNode = SCNNode()
         
-//        var testNode = SCNNode(geometry: SCNSphere(radius: 0.5))
-//        testNode.position = SCNVector3(0, 0, 0)
-//        testNode.geometry?.firstMaterial?.diffuse.contents = UIColor.darkGray
-        
         for atom in ligandModelDTO.atoms {
             let atomNode = SCNNode(geometry: SCNSphere(radius: 0.3))
             atomNode.position = SCNVector3(x: atom.xcoor, y: atom.ycoor, z: atom.zcoor)
-            atomNode.geometry?.firstMaterial?.diffuse.contents = UIColor.darkGray
+            atomNode.geometry?.firstMaterial?.diffuse.contents = CPKColours.AtomColour(from: atom.name)?.colour
+
             moleculeNode.addChildNode(atomNode)
             atomNode.name = atom.name
-            
         }
         
         for bond in ligandModelDTO.bonds {
@@ -48,19 +44,8 @@ class SceneKitHelper {
                                     z: endPoint.zcoor),
                           up: moleculeNode.worldUp,
                           localFront: bondNode.worldUp)
-            bondNode.geometry?.firstMaterial?.diffuse.contents = switch bond.bondType {
-            case 1:
-                UIColor.white
-            case 2:
-                UIColor.blue
-            case 3:
-                UIColor.green
-            // Aromatic
-            case 4:
-                UIColor.red
-            default:
-                UIColor.orange
-            }
+            bondNode.geometry?.firstMaterial?.diffuse.contents = CPKColours.BondColour(from: bond.bondType)?.colour
+            
             moleculeNode.addChildNode(bondNode)
         }
         
