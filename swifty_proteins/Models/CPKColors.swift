@@ -5,22 +5,73 @@
 //  Created by Anisa Kapateva on 10.12.2024.
 //
 
-enum CPKCOlors: String {
-    case hydrogen = "H"
-    case carbon = "C"
-    case nitrogen = "N"
-    case oxygen = "O"
-    case fluorine = "F"
-    case chlorine = "Cl"
-    case bromine = "Br"
-    case iron = "Fe"
-    case iodine = "I"
-    case phosphorus = "P"
-    case sulfur = "S"
-    case titanium = "Ti"
+import Foundation
+import UIKit
+
+enum CPKColours {
+    enum BondColour: Int {
+        case one = 1, two, three, four
+        
+        var colour: UIColor {
+            switch self {
+            case .one:
+                .white
+            case .two:
+                .blue
+            case .three:
+                .green
+                //Aromatic
+            case .four:
+                .red
+            }
+        }
+        
+        init?(from bondType: Int) {
+            self = BondColour(rawValue: bondType) ?? .four
+        }
+    }
     
-//     noble gases (He, Ne, Ar, Kr, Xe, Rn
-//     boron (B), most transition metals    beige
-//     alkali metals (Li, Na, K, Rb, Cs, Fr)    violet
-//     alkaline earth metals (Be, Mg, Ca, Sr, Ba, Ra)    dark green
+    enum AtomColour: String {
+        //main and most popular chemical elements
+        case hydrogen = "H"
+        case carbon = "C"
+        case nitrogen = "N"
+        case oxygen = "O"
+        case fluorine = "F"
+        case chlorine = "Cl"
+        case bromine = "Br"
+        case iron = "Fe"
+        case iodine = "I"
+        case phosphorus = "P"
+        case sulfur = "S"
+        case titanium = "Ti"
+        case helium = "He"
+        case neon = "Ne"
+        case argon = "Ar"
+        case lithium = "Li"
+        case iridium = "Ir"
+        
+        var colour: UIColor {
+            switch self {
+            case .hydrogen: return UIColor(white: 0.85, alpha: 1.0)
+            case .carbon: return .black
+            case .nitrogen: return .blue
+            case .oxygen: return .red
+            case .fluorine, .chlorine: return .green
+            case .bromine: return .red          //make darker
+            case .iron: return .orange          //darker
+            case .iodine: return .purple        //darker
+            case .phosphorus: return .orange
+            case .sulfur: return .yellow
+            case .titanium: return .gray
+            case .helium, .neon, .argon: return .cyan
+            case .lithium: return .purple
+            case .iridium: return .systemPink
+            }
+        }
+        
+        init?(from atomType: String) {
+            self = AtomColour(rawValue: atomType) ?? .iridium
+        }
+    }
 }
