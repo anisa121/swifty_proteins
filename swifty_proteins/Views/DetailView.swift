@@ -25,6 +25,8 @@ struct DetailView: View {
                 ProgressView() { Text("Loading") }
             } else if let ligandDTO = viewModel.ligandModel {
                 LigandSceneView(ligandModel: ligandDTO)
+                    .navigationTitle(ligandName)
+                    .navigationBarTitleDisplayMode(.inline)
             } else {
                 Text("We couldn't load the ligand 3D model :(")
             }

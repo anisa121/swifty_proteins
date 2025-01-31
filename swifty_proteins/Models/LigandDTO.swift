@@ -8,6 +8,7 @@
 import Foundation
 
 struct LigandDTO {
+    let name: String
     let atoms: [atomStruct]
     let bonds: [bondStruct]
 

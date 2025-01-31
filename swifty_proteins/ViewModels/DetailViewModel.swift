@@ -86,6 +86,6 @@ class DetailViewModel: ObservableObject {
         guard !atoms.isEmpty else {
             throw CreatingError.fileParsingFailed
         }
-        return LigandDTO(atoms: atoms, bonds: bonds)
+        return LigandDTO(name: ligandName, atoms: atoms, bonds: bonds)
     }
 }
