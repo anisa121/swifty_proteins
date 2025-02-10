@@ -16,7 +16,6 @@ class SceneKitHelper {
         for atom in ligandModelDTO.atoms {
             let atomNode = SCNNode(geometry: SCNSphere(radius: 0.3))
             atomNode.position = SCNVector3(x: atom.xcoor, y: atom.ycoor, z: atom.zcoor)
-
             atomNode.geometry?.firstMaterial?.diffuse.contents = CPKColourProvider.atomColour(for: AtomType(rawValue: atom.name) ?? .iridium)
             moleculeNode.addChildNode(atomNode)
             atomNode.name = atom.name
