@@ -50,4 +50,5 @@ class SceneKitHelper {
         
         return moleculeNode
     }
+    
 }

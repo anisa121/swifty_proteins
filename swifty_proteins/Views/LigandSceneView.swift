@@ -10,13 +10,16 @@ import SwiftUI
 import SceneKit
 
 struct LigandSceneView: UIViewRepresentable {
+    @Binding var showPopup: Bool
+    @Binding var selectedAtomName: String
     var ligandModel: LigandDTO
+    var previousNodeTapped: SCNNode?
     
     func makeUIView(context: Context) -> some UIView {
         let scnView = SCNView()
         scnView.allowsCameraControl = true
         scnView.backgroundColor = .white
-        
+                
         let node = SceneKitHelper().createNode(ligandModelDTO: ligandModel)
         
         let camera = SCNCamera()
@@ -52,10 +55,43 @@ struct LigandSceneView: UIViewRepresentable {
         scene.rootNode.addChildNode(backOmniNode)
         scnView.scene = scene
         
+        let gestureRecognizer = UITapGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.handleTap(_:)))
+        scnView.addGestureRecognizer(gestureRecognizer)
+        
         return scnView
     }
     
-    func updateUIView(_ uiView: UIViewType, context: Context) {
-        //
+    func updateUIView(_ uiView: UIViewType, context: Context) {}
+    
+    class Coordinator: NSObject {
+        var parent: LigandSceneView
+        
+        init(_ parent: LigandSceneView) {
+            self.parent = parent
+        }
+        
+        @objc func handleTap(_ gesture: UITapGestureRecognizer) {
+            guard let scene = gesture.view as? SCNView else {
+                return
+            }
+            let touchPlace = gesture.location(in: scene)
+            let nodeRecognised = scene.hitTest(touchPlace, options: nil)
+            if let node = nodeRecognised.first?.node, let atomName = node.name {
+                DispatchQueue.main.async {
+                    if node == self.parent.previousNodeTapped {
+                        self.parent.showPopup = false
+                    } else {
+                        self.parent.selectedAtomName = node.name ?? "Undefined"
+                        self.parent.showPopup = true
+                        self.parent.previousNodeTapped = node
+                    }
+                }
+            }
+        }
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+        
     }
 }
