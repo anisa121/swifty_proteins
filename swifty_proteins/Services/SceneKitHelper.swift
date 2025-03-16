@@ -16,12 +16,17 @@ class SceneKitHelper {
         for atom in ligandModelDTO.atoms {
             let atomNode = SCNNode(geometry: SCNSphere(radius: 0.3))
             atomNode.position = SCNVector3(x: atom.xcoor, y: atom.ycoor, z: atom.zcoor)
-            atomNode.geometry?.firstMaterial?.diffuse.contents = CPKColourProvider.atomColour(for: AtomType(rawValue: atom.name) ?? .iridium)
+            atomNode.geometry?.firstMaterial?.diffuse.contents = CPKColourProvider.atomColour(for: AtomVarieties(rawValue: atom.name) ?? .iridium)
             moleculeNode.addChildNode(atomNode)
             atomNode.name = atom.name
         }
         
         for bond in ligandModelDTO.bonds {
+//            if bond.originAtom > ligandModelDTO.atoms.count ||
+//                bond.targetAtom > ligandModelDTO.atoms.count {
+//                return moleculeNode
+//            } // check if there is no error with file and bond info contains valid info about origin and targer atom
+            
             let startPoint = ligandModelDTO.atoms[bond.originAtom - 1]
             let endPoint = ligandModelDTO.atoms[bond.targetAtom - 1]
             let height = CGFloat((
@@ -43,7 +48,7 @@ class SceneKitHelper {
                                     z: endPoint.zcoor),
                           up: moleculeNode.worldUp,
                           localFront: bondNode.worldUp)
-            bondNode.geometry?.firstMaterial?.diffuse.contents = CPKColourProvider.bondColour(for: BondType(rawValue: bond.bondType) ?? .four)
+            bondNode.geometry?.firstMaterial?.diffuse.contents = CPKColourProvider.bondColour(for: BondVarieties(rawValue: bond.bondType) ?? .four)
             
             moleculeNode.addChildNode(bondNode)
         }

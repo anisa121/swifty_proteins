@@ -8,11 +8,11 @@
 import Foundation
 import UIKit
 
-enum BondType: Int {
+enum BondVarieties: Int {
     case one =  1, two, three, four
 }
 
-enum AtomType: String {
+enum AtomVarieties: String {
     case hydrogen = "H"
     case carbon = "C"
     case nitrogen = "N"
@@ -34,7 +34,7 @@ enum AtomType: String {
 
 class CPKColourProvider {
     
-    class func bondColour(for type: BondType) -> UIColor {
+    class func bondColour(for type: BondVarieties) -> UIColor {
         switch type {
         case .one:
             return .white
@@ -48,7 +48,7 @@ class CPKColourProvider {
         }
     }
     
-    class func atomColour(for type: AtomType) -> UIColor {
+    class func atomColour(for type: AtomVarieties) -> UIColor {
         switch type {
         case .hydrogen: return UIColor(white: 0.85, alpha: 1.0)
         case .carbon: return .black

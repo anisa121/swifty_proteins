@@ -76,10 +76,10 @@ struct LigandSceneView: UIViewRepresentable {
             }
             let touchPlace = gesture.location(in: scene)
             let nodeRecognised = scene.hitTest(touchPlace, options: nil)
-            if let node = nodeRecognised.first?.node, let atomName = node.name {
+            if let node = nodeRecognised.first?.node {
                 DispatchQueue.main.async {
                     if node == self.parent.previousNodeTapped {
-                        self.parent.showPopup = false
+                        self.parent.showPopup.toggle()
                     } else {
                         self.parent.selectedAtomName = node.name ?? "Undefined"
                         self.parent.showPopup = true
@@ -92,6 +92,5 @@ struct LigandSceneView: UIViewRepresentable {
     
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
-        
     }
 }
