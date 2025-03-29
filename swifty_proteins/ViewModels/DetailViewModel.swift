@@ -9,7 +9,7 @@ import SwiftUI
 import Combine
 
 protocol ParsingTypeToLigandElement {
-    static func convertToType(singleLine: String) -> Self?
+    static func decodeFrom(line: String) -> Self?
 }
 
 enum CreatingError: Error {
@@ -63,7 +63,7 @@ class DetailViewModel: ObservableObject {
         
         for line in lines {
             for type in parserTypes {
-                if let element = type.convertToType(singleLine: line) {
+                if let element = type.decodeFrom(line: line) {
                     if let newAtom = element as? Atom {
                         atoms.append(newAtom)
                     } else if let newBond = element as? Bond {

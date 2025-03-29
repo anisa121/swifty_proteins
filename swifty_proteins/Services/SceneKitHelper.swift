@@ -16,44 +16,36 @@ class SceneKitHelper {
         for atom in ligandModel.atoms {
             let atomNode = SCNNode(geometry: SCNSphere(radius: 0.3))
             atomNode.position = SCNVector3(x: atom.xcoor, y: atom.ycoor, z: atom.zcoor)
-            atomNode.geometry?.firstMaterial?.diffuse.contents =
-            AtomType.retrieveColour(for: AtomType(rawValue: atom.name) ?? .iridium)
+            atomNode.geometry?.firstMaterial?.diffuse.contents = atom.kind.colour
             moleculeNode.addChildNode(atomNode)
             atomNode.name = atom.name
         }
         
         for bond in ligandModel.bonds {
-//            if bond.originAtom > ligandModelDTO.atoms.count ||
-//                bond.targetAtom > ligandModelDTO.atoms.count {
-//                return moleculeNode
-//            }
             /*check if there is no error with file and bond info
              contains valid infoabout origin and targer atom*/
             
-            let startPoint = ligandModel.atoms[bond.originAtom - 1]
-            let endPoint = ligandModel.atoms[bond.targetAtom - 1]
-            let height = CGFloat((
-                pow(endPoint.xcoor - startPoint.xcoor, 2)
-                + pow(endPoint.ycoor - startPoint.ycoor, 2)
-                + pow(endPoint.zcoor - startPoint.zcoor, 2)
-            ).squareRoot())
+            let firstAtom = ligandModel.atoms[bond.originAtom - 1]
+            let secondAtom = ligandModel.atoms[bond.targetAtom - 1]
+            let height = CGFloat(
+                (pow(secondAtom.xcoor - firstAtom.xcoor, 2)
+                 + pow(secondAtom.ycoor - firstAtom.ycoor, 2)
+                 + pow(secondAtom.zcoor - firstAtom.zcoor, 2)).squareRoot()
+            )
 
-            let midPoint = SCNVector3(x: (startPoint.xcoor + endPoint.xcoor) / 2,
-                                      y: (startPoint.ycoor + endPoint.ycoor) / 2,
-                                      z: (startPoint.zcoor + endPoint.zcoor) / 2)
-            
+            let midPoint = SCNVector3(x: (firstAtom.xcoor + secondAtom.xcoor) / 2,
+                                      y: (firstAtom.ycoor + secondAtom.ycoor) / 2,
+                                      z: (firstAtom.zcoor + secondAtom.zcoor) / 2)
+
             let bondNode = SCNNode(geometry: SCNCylinder(radius: 0.1, height: height))
 
             bondNode.position = midPoint
             bondNode.name = "\(bond.originAtom)-\(bond.targetAtom)"
-            bondNode.look(at: .init(x: endPoint.xcoor,
-                                    y: endPoint.ycoor,
-                                    z: endPoint.zcoor),
+            bondNode.look(at: secondAtom.vector,
                           up: moleculeNode.worldUp,
                           localFront: bondNode.worldUp)
             
-            bondNode.geometry?.firstMaterial?.diffuse.contents =
-            BondType.retrieveColour(for: BondType(rawValue: bond.type) ?? .four)
+            bondNode.geometry?.firstMaterial?.diffuse.contents = bond.kind.color
             moleculeNode.addChildNode(bondNode)
         }
         
