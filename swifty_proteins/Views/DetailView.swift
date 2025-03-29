@@ -56,7 +56,6 @@ struct DetailView: View {
                     .padding(.top, 30)
                     .padding(.leading, 18)
             }
-            
         }
     }
 }

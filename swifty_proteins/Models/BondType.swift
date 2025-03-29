@@ -10,7 +10,9 @@ import UIKit
 
 enum BondType: Int {
     case one = 1, two, three, four
-    
+}
+
+extension BondType {
     static func retrieveColour(for type: BondType) -> UIColor {
         return switch type {
         case .one: .white

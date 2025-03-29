@@ -26,7 +26,9 @@ enum AtomType: String {
     case argon = "Ar"
     case lithium = "Li"
     case iridium = "Ir"
-    
+}
+
+extension AtomType {
     static func retrieveColour(for type: AtomType) -> UIColor {
         return switch type {
         case .hydrogen: UIColor(white: 0.85, alpha: 1.0)
