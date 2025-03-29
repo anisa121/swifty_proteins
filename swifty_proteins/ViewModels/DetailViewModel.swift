@@ -8,6 +8,10 @@
 import SwiftUI
 import Combine
 
+protocol ParsingTypeToLigandElement {
+    static func convertToType(singleLine: String) -> Self?
+}
+
 enum CreatingError: Error {
     case fileParsingFailed
 }
@@ -15,10 +19,11 @@ enum CreatingError: Error {
 class DetailViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var errorMessage: String? = nil
-    @Published var ligandModel: LigandDTO?
+    @Published var ligandModel: Ligand?
     let ligandName: String
     var networkLayer = NetworkManager()
     private var cancellable = Set<AnyCancellable>()
+    private var isIncorrectFile: Bool = false
     
     init(ligandName: String) {
         self.ligandName = ligandName
@@ -39,53 +44,38 @@ class DetailViewModel: ObservableObject {
                     self.isLoading = false
                     self.errorMessage = "Please, try letter. \(error)"
                 }
-            } receiveValue: { ligandDTO in
+            } receiveValue: { ligand in
                 self.isLoading = false
-                self.ligandModel = ligandDTO
+                self.ligandModel = ligand
             }
             .store(in: &self.cancellable)
     }
     
-    func creatingLigandModel(ligandDataString: String) throws -> LigandDTO {
+    func creatingLigandModel(ligandDataString: String) throws -> Ligand {
         print(ligandDataString)
-        var atomsCount: Int = 0
-        var bondsCount: Int = 0
-        var atoms: [LigandDTO.atomStruct] = []
-        var bonds: [LigandDTO.bondStruct] = []
-        let lines = ligandDataString.components(separatedBy: "\n")
-        let headerLineIndex = 3
-        var atomsLinesEnd = 0
+        var atoms: [Atom] = []
+        var bonds: [Bond] = []
+        let parserTypes: Array<ParsingTypeToLigandElement.Type> = [
+            Atom.self, Bond.self
+        ]
         
-        for (index, value) in lines.enumerated() {
-            if index == headerLineIndex {
-                let subline = value.split(separator: " ")
-                guard let atoms = Int(subline[0]), let bonds = Int(subline[1]) else {
-                    throw CreatingError.fileParsingFailed
-                }
-                atomsCount = atoms
-                bondsCount = bonds
-                atomsLinesEnd = headerLineIndex + atomsCount
-            }
-            if index > headerLineIndex && index <= atomsLinesEnd {
-                let atomSublines = value.split(separator: " ")
-                if let x = Float(atomSublines[0]), let y = Float(atomSublines[1]),
-                   let z = Float(atomSublines[2]) {
-                    atoms.append(LigandDTO.atomStruct(id: index + 1, name: String(atomSublines[3]), xcoor: x, ycoor: y, zcoor: z))
-                }
-            }
-            
-            if index > atomsLinesEnd && index <= (atomsLinesEnd + bondsCount) {
-                let bondSublines = value.split(separator: " ")
-                if let origin = Int(bondSublines[0]), let target = Int(bondSublines[1]),
-                   let type = Int(bondSublines[2]) {
-                    bonds.append(LigandDTO.bondStruct(originAtom: origin, targetAtom: target, bondType: type))
+        let lines = ligandDataString.components(separatedBy: "\n")
+        
+        for line in lines {
+            for type in parserTypes {
+                if let element = type.convertToType(singleLine: line) {
+                    if let newAtom = element as? Atom {
+                        atoms.append(newAtom)
+                    } else if let newBond = element as? Bond {
+                        bonds.append(newBond)
+                    }
                 }
             }
         }
- 
+        
         guard !atoms.isEmpty else {
             throw CreatingError.fileParsingFailed
         }
-        return LigandDTO(name: ligandName, atoms: atoms, bonds: bonds)
+        return Ligand(name: ligandName, atoms: atoms, bonds: bonds)
     }
 }
