@@ -11,13 +11,7 @@ struct Atom {
     let id: Int
     let name: String
     let kind: Atom.Kind
-    let xcoor: Float
-    let ycoor: Float
-    let zcoor: Float
-
-    var vector: SCNVector3 {
-        .init(x: xcoor, y: ycoor, z: zcoor)
-    }
+    let vector: SCNVector3
 }
 
 extension Atom: ParsingTypeToLigandElement {
@@ -31,6 +25,9 @@ extension Atom: ParsingTypeToLigandElement {
         }
         let name = String(sublines[3])
         // id = 1: temporary decision since idk what to put there
-        return Atom(id: 1, name: name, kind: .from(string: name), xcoor: x, ycoor: y, zcoor: z)
+        return Atom(id: 1,
+                    name: name,
+                    kind: .from(string: name),
+                    vector: .init(x: x, y: y, z: z))
     }
 }
