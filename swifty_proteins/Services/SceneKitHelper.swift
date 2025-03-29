@@ -10,25 +10,28 @@ import SceneKit
 
 class SceneKitHelper {
     
-    func createNode(ligandModelDTO: LigandDTO) -> SCNNode {
+    func createNode(ligandModel: Ligand) -> SCNNode {
         let moleculeNode = SCNNode()
         
-        for atom in ligandModelDTO.atoms {
+        for atom in ligandModel.atoms {
             let atomNode = SCNNode(geometry: SCNSphere(radius: 0.3))
             atomNode.position = SCNVector3(x: atom.xcoor, y: atom.ycoor, z: atom.zcoor)
-            atomNode.geometry?.firstMaterial?.diffuse.contents = CPKColourProvider.atomColour(for: AtomVarieties(rawValue: atom.name) ?? .iridium)
+            atomNode.geometry?.firstMaterial?.diffuse.contents =
+            AtomType.retrieveColour(for: AtomType(rawValue: atom.name) ?? .iridium)
             moleculeNode.addChildNode(atomNode)
             atomNode.name = atom.name
         }
         
-        for bond in ligandModelDTO.bonds {
+        for bond in ligandModel.bonds {
 //            if bond.originAtom > ligandModelDTO.atoms.count ||
 //                bond.targetAtom > ligandModelDTO.atoms.count {
 //                return moleculeNode
-//            } // check if there is no error with file and bond info contains valid info about origin and targer atom
+//            }
+            /*check if there is no error with file and bond info
+             contains valid infoabout origin and targer atom*/
             
-            let startPoint = ligandModelDTO.atoms[bond.originAtom - 1]
-            let endPoint = ligandModelDTO.atoms[bond.targetAtom - 1]
+            let startPoint = ligandModel.atoms[bond.originAtom - 1]
+            let endPoint = ligandModel.atoms[bond.targetAtom - 1]
             let height = CGFloat((
                 pow(endPoint.xcoor - startPoint.xcoor, 2)
                 + pow(endPoint.ycoor - startPoint.ycoor, 2)
@@ -48,8 +51,9 @@ class SceneKitHelper {
                                     z: endPoint.zcoor),
                           up: moleculeNode.worldUp,
                           localFront: bondNode.worldUp)
-            bondNode.geometry?.firstMaterial?.diffuse.contents = CPKColourProvider.bondColour(for: BondVarieties(rawValue: bond.bondType) ?? .four)
             
+            bondNode.geometry?.firstMaterial?.diffuse.contents =
+            BondType.retrieveColour(for: BondType(rawValue: bond.type) ?? .four)
             moleculeNode.addChildNode(bondNode)
         }
         

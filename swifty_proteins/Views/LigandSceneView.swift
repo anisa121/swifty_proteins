@@ -12,7 +12,7 @@ import SceneKit
 struct LigandSceneView: UIViewRepresentable {
     @Binding var showPopup: Bool
     @Binding var selectedAtomName: String
-    var ligandModel: LigandDTO
+    var ligandModel: Ligand
     var previousNodeTapped: SCNNode?
     
     func makeUIView(context: Context) -> some UIView {
@@ -20,7 +20,7 @@ struct LigandSceneView: UIViewRepresentable {
         scnView.allowsCameraControl = true
         scnView.backgroundColor = .white
                 
-        let node = SceneKitHelper().createNode(ligandModelDTO: ligandModel)
+        let node = SceneKitHelper().createNode(ligandModel: ligandModel)
         
         let camera = SCNCamera()
         camera.fieldOfView = 45

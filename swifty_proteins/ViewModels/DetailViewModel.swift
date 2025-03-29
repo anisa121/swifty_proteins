@@ -19,7 +19,7 @@ enum CreatingError: Error {
 class DetailViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var errorMessage: String? = nil
-    @Published var ligandModel: LigandDTO?
+    @Published var ligandModel: Ligand?
     let ligandName: String
     var networkLayer = NetworkManager()
     private var cancellable = Set<AnyCancellable>()
@@ -44,19 +44,19 @@ class DetailViewModel: ObservableObject {
                     self.isLoading = false
                     self.errorMessage = "Please, try letter. \(error)"
                 }
-            } receiveValue: { ligandDTO in
+            } receiveValue: { ligand in
                 self.isLoading = false
-                self.ligandModel = ligandDTO
+                self.ligandModel = ligand
             }
             .store(in: &self.cancellable)
     }
     
-    func creatingLigandModel(ligandDataString: String) throws -> LigandDTO {
+    func creatingLigandModel(ligandDataString: String) throws -> Ligand {
         print(ligandDataString)
-        var atoms: [AtomType] = []
-        var bonds: [BondType] = []
+        var atoms: [Atom] = []
+        var bonds: [Bond] = []
         let parserTypes: Array<ParsingTypeToLigandElement.Type> = [
-            AtomType.self, BondType.self
+            Atom.self, Bond.self
         ]
         
         let lines = ligandDataString.components(separatedBy: "\n")
@@ -64,9 +64,9 @@ class DetailViewModel: ObservableObject {
         for line in lines {
             for type in parserTypes {
                 if let element = type.convertToType(singleLine: line) {
-                    if let newAtom = element as? AtomType {
+                    if let newAtom = element as? Atom {
                         atoms.append(newAtom)
-                    } else if let newBond = element as? BondType {
+                    } else if let newBond = element as? Bond {
                         bonds.append(newBond)
                     }
                 }
@@ -76,6 +76,6 @@ class DetailViewModel: ObservableObject {
         guard !atoms.isEmpty else {
             throw CreatingError.fileParsingFailed
         }
-        return LigandDTO(name: ligandName, atoms: atoms, bonds: bonds)
+        return Ligand(name: ligandName, atoms: atoms, bonds: bonds)
     }
 }

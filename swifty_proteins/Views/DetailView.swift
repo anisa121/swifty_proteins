@@ -26,8 +26,8 @@ struct DetailView: View {
             VStack {
                 if viewModel.isLoading {
                     ProgressView() { Text("Loading") }
-                } else if let ligandDTO = viewModel.ligandModel {
-                    LigandSceneView(showPopup: $showPopup, selectedAtomName: $selectedAtomName, ligandModel: ligandDTO)
+                } else if let ligand = viewModel.ligandModel {
+                    LigandSceneView(showPopup: $showPopup, selectedAtomName: $selectedAtomName, ligandModel: ligand)
                         .navigationTitle(ligandName)
                         .navigationBarTitleDisplayMode(.inline)
                 } else {

@@ -7,13 +7,13 @@
 
 import Foundation
 
-struct LigandDTO {
+struct Ligand {
     let name: String
-    let atoms: [AtomType]
-    let bonds: [BondType]
+    let atoms: [Atom]
+    let bonds: [Bond]
 }
 
-struct AtomType: ParsingTypeToLigandElement {
+struct Atom: ParsingTypeToLigandElement {
     let id: Int
     let name: String
     let xcoor: Float
@@ -26,7 +26,8 @@ struct AtomType: ParsingTypeToLigandElement {
             return nil
         }
         if let x = Float(sublines[0]), let y = Float(sublines[1]), let z = Float(sublines[2]) {
-            return AtomType(id: 1, name: String(sublines[3]), xcoor: x, ycoor: y, zcoor: z) // id = 1: temporary decision since idk what to put there
+            // id = 1: temporary decision since idk what to put there
+            return Atom(id: 1, name: String(sublines[3]), xcoor: x, ycoor: y, zcoor: z)
         }
         return nil
         
@@ -42,10 +43,10 @@ struct AtomType: ParsingTypeToLigandElement {
 
 }
 
-struct BondType: ParsingTypeToLigandElement {
+struct Bond: ParsingTypeToLigandElement {
     let originAtom: Int
     let targetAtom: Int
-    let bondType: Int
+    let type: Int
     
     static func convertToType(singleLine: String) -> Self? {
         let sublines = singleLine.split(separator: " ")
@@ -53,7 +54,7 @@ struct BondType: ParsingTypeToLigandElement {
             return nil
         }
         if let origin = Int(sublines[0]), let target = Int(sublines[1]), let type = Int(sublines[2]) {
-            return BondType(originAtom: origin, targetAtom: target, bondType: type)
+            return Bond(originAtom: origin, targetAtom: target, bondType: type)
         }
         return nil
     }
@@ -61,7 +62,7 @@ struct BondType: ParsingTypeToLigandElement {
     init(originAtom: Int, targetAtom: Int, bondType: Int) {
         self.originAtom = originAtom
         self.targetAtom = targetAtom
-        self.bondType = bondType
+        self.type = bondType
     }
     
 }
