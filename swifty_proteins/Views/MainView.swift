@@ -10,17 +10,24 @@ import SwiftUI
 struct MainView: View {
     @StateObject private var viewModel = MainViewModel()
     @State private var searchText = ""
+    @Environment(\.dismiss) private var dismiss
+    @StateObject var biometricAuth: BiometricAuth
 
     var body: some View {
-        NavigationStack {
-            List(searchResults) { item in
-                NavigationLink(destination: DetailView(modelId: item.id, ligandName: item.name)) {
-                    Text(item.name)
-                }
+        List(searchResults) { item in
+            NavigationLink(destination: DetailView(modelId: item.id, ligandName: item.name)) {
+                Text(item.name)
             }
-            .navigationTitle("Ligands List")
         }
+        .navigationTitle("Ligands List")
         .searchable(text: $searchText)
+//        .gesture(DragGesture()
+//            .onEnded({ gesture in
+//                if gesture.translation.width > 100 {
+//                    biometricAuth.isUnlocked = false
+//                    dismiss()
+//                }
+//            }))
     }
 
     var searchResults: [LigandName] {
@@ -30,8 +37,3 @@ struct MainView: View {
         return viewModel.items.filter { $0.name.contains(searchText) }
     }
 }
-
-
-//#Preview {
-//    MainView()
-//}
