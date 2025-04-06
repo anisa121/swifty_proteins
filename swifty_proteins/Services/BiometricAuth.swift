@@ -49,11 +49,9 @@ class BiometricAuth: ObservableObject {
            let data = item as? Data,
            let savedPassword = String(data: data, encoding: .utf8) {
             if let password = password, savedPassword == password {
-                print("TRUE PASS")
                 return true
             }
         }
-        print("FALSE PASS")
         return false
     }
     
@@ -74,6 +72,5 @@ class BiometricAuth: ObservableObject {
         let status = SecItemDelete(query as CFDictionary)
         return status == errSecSuccess || status == errSecItemNotFound
     }
-    
 }
 
