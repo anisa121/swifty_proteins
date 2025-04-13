@@ -63,9 +63,6 @@ struct LoginView: View {
             .navigationDestination(isPresented: $navigateToMainView) {
                 MainView()
                     .environmentObject(biometricAuth)
-//                    .onDisappear() {
-//                        biometricAuth.isUnlocked = false
-//                    }
             }
             .sheet(isPresented: $showPasswordSetupView) {
                 PasswordSetupView(biometricAuth: biometricAuth)
