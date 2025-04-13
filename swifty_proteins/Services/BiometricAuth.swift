@@ -12,12 +12,19 @@ import LocalAuthentication
 class BiometricAuth: ObservableObject {
     @Published var isUnlocked = false
     private let keychainPasswordKey = "com.swiftyproteins.userpassword"
-    
+
+    var isBiometricsSelected: Bool {
+        UserDefaults.standard.bool(forKey: "isBiometricsSelected")
+    }
+
     func authentication() {
+        if isBiometricsSelected == false {
+            UserDefaults.standard.set(true, forKey: "isBiometricsSelected")
+        }
         let context = LAContext()
         var error: NSError?
         let reason = "Allow to access"
-        
+
         if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
             context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics,
                                    localizedReason: reason) { success, authError in
@@ -29,7 +36,7 @@ class BiometricAuth: ObservableObject {
             }
         }
     }
-    
+
     func setPassword(_ password: String) -> Bool {
         let passwordData = password.data(using: .utf8)!
         let addquery: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
@@ -38,7 +45,7 @@ class BiometricAuth: ObservableObject {
         let status = SecItemAdd(addquery as CFDictionary, nil)
         return status == errSecSuccess
     }
-    
+
     func checkPassword(_ password: String? = nil) -> Bool {
         let getquery: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
                                        kSecAttrAccount as String: keychainPasswordKey,
@@ -53,7 +60,7 @@ class BiometricAuth: ObservableObject {
         }
         return savedPassword == password
     }
-    
+
     func hasPassword() -> Bool {
         let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
                                     kSecAttrAccount as String: keychainPasswordKey,
@@ -62,7 +69,7 @@ class BiometricAuth: ObservableObject {
         let status = SecItemCopyMatching(query as CFDictionary, &result)
         return status == errSecSuccess
     }
-    
+
     func deletePassword() -> Bool {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
