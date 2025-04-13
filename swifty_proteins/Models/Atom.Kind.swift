@@ -55,5 +55,28 @@ extension Atom.Kind {
         default: .systemMint
         }
     }
+
+    var descriptiveName: String {
+        return switch self {
+        case .hydrogen: "Hydrogen"
+        case .carbon: "Carbon"
+        case .nitrogen: "Nitrogen"
+        case .oxygen: "Oxygen"
+        case .fluorine: "Fluorine"
+        case .chlorine: "Chlorine"
+        case .bromine: "Bromine"
+        case .iron: "Iron"
+        case .iodine: "Iodine"
+        case .phosphorus: "Phosphorus"
+        case .sulfur: "Sulfur"
+        case .titanium: "Titanium"
+        case .helium: "Helium"
+        case .neon: "Neon"
+        case .argon: "Argon"
+        case .lithium: "Lithium"
+        case .iridium: "Iridium"
+        case .unknown: "Unknown"
+        }
+    }
 }
 

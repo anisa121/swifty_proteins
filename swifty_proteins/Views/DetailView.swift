@@ -100,17 +100,27 @@ struct DetailView: View {
                 Text(viewModel.errorMessage ?? "some error happened") })
 
             if showPopup {
-                Text(selectedAtomName)
-                    .padding(8)
-                    .background(Color.gray.opacity(0.8))
-                    .foregroundStyle(Color.white)
-                    .clipShape(.buttonBorder)
-                    .animation(.easeInOut, value: showPopup)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.top, 30)
-                    .padding(.leading, 18)
+                HStack {
+                    Text(descriptionTitle(for: selectedAtomName))
+                        .padding(8)
+                        .background(Color.gray.opacity(0.8))
+                        .foregroundStyle(Color.white)
+                        .clipShape(.buttonBorder)
+                        .animation(.easeInOut, value: showPopup)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.top, 30)
+                        .padding(.leading, 18)
+                }
             }
         }
+    }
+
+    private func descriptionTitle(for name: String) -> String {
+        var description = name
+        if let kind = Atom.Kind(rawValue: selectedAtomName) {
+            description += "  - \(kind.descriptiveName)"
+        }
+        return description
     }
 
     private func shareImage(_ image: UIImage) {
