@@ -45,14 +45,13 @@ class BiometricAuth: ObservableObject {
                                        kSecReturnData as String: true]
         var item: AnyObject?
         let status = SecItemCopyMatching(getquery as CFDictionary, &item)
-        if status == errSecSuccess,
-           let data = item as? Data,
-           let savedPassword = String(data: data, encoding: .utf8) {
-            if let password = password, savedPassword == password {
-                return true
-            }
+        guard status == errSecSuccess,
+              let data = item as? Data,
+              let savedPassword = String(data: data, encoding: .utf8),
+              let password = password else {
+            return false
         }
-        return false
+        return savedPassword == password
     }
     
     func hasPassword() -> Bool {
@@ -73,4 +72,3 @@ class BiometricAuth: ObservableObject {
         return status == errSecSuccess || status == errSecItemNotFound
     }
 }
-

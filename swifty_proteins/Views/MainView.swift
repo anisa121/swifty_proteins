@@ -11,23 +11,18 @@ struct MainView: View {
     @StateObject private var viewModel = MainViewModel()
     @State private var searchText = ""
     @Environment(\.dismiss) private var dismiss
-    @StateObject var biometricAuth: BiometricAuth
+    @EnvironmentObject var biometricAuth: BiometricAuth
 
     var body: some View {
-        List(searchResults) { item in
-            NavigationLink(destination: DetailView(modelId: item.id, ligandName: item.name)) {
-                Text(item.name)
+        NavigationStack {
+            List(searchResults) { item in
+                NavigationLink(destination: DetailView(modelId: item.id, ligandName: item.name)) {
+                    Text(item.name)
+                }
             }
+            .navigationTitle("Ligands List")
+            .searchable(text: $searchText)
         }
-        .navigationTitle("Ligands List")
-        .searchable(text: $searchText)
-//        .gesture(DragGesture()
-//            .onEnded({ gesture in
-//                if gesture.translation.width > 100 {
-//                    biometricAuth.isUnlocked = false
-//                    dismiss()
-//                }
-//            }))
     }
 
     var searchResults: [LigandName] {

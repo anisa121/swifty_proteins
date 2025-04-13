@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 struct LoginView: View {
-    @StateObject private var biometricAuth = BiometricAuth()
+    @EnvironmentObject var biometricAuth: BiometricAuth
     @State private var showPasswordSetupView = false
     @State private var password = ""
     @State var navigateToMainView = false
@@ -29,17 +29,22 @@ struct LoginView: View {
                     Button("Login") {
                         if biometricAuth.checkPassword(password) {
                             biometricAuth.isUnlocked = true
+                            password = ""
                         } else {
                             showAlert = true
                         }
                     }
+                    .buttonStyle(.borderedProminent)
+                    .padding()
                     Button("Use Biometrics") {
                         biometricAuth.authentication()
                     }
+                    .padding()
                 } else {
                     Button("Set Password") {
                         showPasswordSetupView = true
                     }
+                    .buttonStyle(.borderedProminent)
                     .padding()
                     Button("Use Biometrics") {
                         biometricAuth.authentication()
@@ -56,16 +61,17 @@ struct LoginView: View {
                 Text("Wrong password")
             }
             .navigationDestination(isPresented: $navigateToMainView) {
-                MainView(biometricAuth: biometricAuth)
-                    .onDisappear() {
-                        biometricAuth.isUnlocked = false
-                    }
+                MainView()
+                    .environmentObject(biometricAuth)
+//                    .onDisappear() {
+//                        biometricAuth.isUnlocked = false
+//                    }
             }
             .sheet(isPresented: $showPasswordSetupView) {
                 PasswordSetupView(biometricAuth: biometricAuth)
-                
             }
             .onAppear() {
+                password = ""
                 navigateToMainView = false
             }
             .onChange(of: biometricAuth.isUnlocked) { oldValue, newValue in
