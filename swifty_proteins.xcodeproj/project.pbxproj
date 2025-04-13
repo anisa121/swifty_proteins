@@ -400,6 +400,7 @@
 				DEVELOPMENT_TEAM = TD9TA2Y9H4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Allow to access";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "This app needs access to save ligand snapshots to your photo library";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app needs access to save ligand snapshots to your photo library";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -433,6 +434,7 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Allow to access";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "This app needs access to save ligand snapshots to your photo library";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app needs access to save ligand snapshots to your photo library";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
