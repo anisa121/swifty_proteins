@@ -10,6 +10,8 @@ import SwiftUI
 struct MainView: View {
     @StateObject private var viewModel = MainViewModel()
     @State private var searchText = ""
+    @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var biometricAuth: BiometricAuth
 
     var body: some View {
         NavigationStack {
@@ -19,8 +21,8 @@ struct MainView: View {
                 }
             }
             .navigationTitle("Ligands List")
+            .searchable(text: $searchText)
         }
-        .searchable(text: $searchText)
     }
 
     var searchResults: [LigandName] {
@@ -30,8 +32,3 @@ struct MainView: View {
         return viewModel.items.filter { $0.name.contains(searchText) }
     }
 }
-
-
-//#Preview {
-//    MainView()
-//}
