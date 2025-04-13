@@ -18,8 +18,8 @@ struct LigandSceneView: UIViewRepresentable {
 
     func makeUIView(context: Context) -> some UIView {
         scnView.allowsCameraControl = true
-        scnView.backgroundColor = .white
-                
+        scnView.backgroundColor = UIColor(red: 0.95, green: 0.95, blue: 0.95, alpha: 1.0)
+
         let node = SceneKitBuilder(model: ligandModel).makeNode()
 
         let camera = SCNCamera()
