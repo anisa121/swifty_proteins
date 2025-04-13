@@ -14,9 +14,9 @@ struct LigandSceneView: UIViewRepresentable {
     @Binding var selectedAtomName: String
     var ligandModel: Ligand
     var previousNodeTapped: SCNNode?
-    
+    private let scnView = SCNView()
+
     func makeUIView(context: Context) -> some UIView {
-        let scnView = SCNView()
         scnView.allowsCameraControl = true
         scnView.backgroundColor = .white
                 
@@ -57,13 +57,18 @@ struct LigandSceneView: UIViewRepresentable {
         
         let gestureRecognizer = UITapGestureRecognizer(target: context.coordinator,
                                                        action: #selector(Coordinator.handleTap(_:)))
+
         scnView.addGestureRecognizer(gestureRecognizer)
-        
+
         return scnView
     }
     
     func updateUIView(_ uiView: UIViewType, context: Context) {}
-    
+
+    func takeSnapshot() -> UIImage? {
+        return scnView.snapshot()
+    }
+
     class Coordinator: NSObject {
         var parent: LigandSceneView
         
