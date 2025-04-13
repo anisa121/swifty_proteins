@@ -8,10 +8,16 @@
 import SceneKit.SCNNode
 
 struct Atom {
-    let id: Int
+    let id = UUID().uuidString
     let name: String
     let kind: Atom.Kind
     let vector: SCNVector3
+}
+
+extension Atom: Equatable {
+    static func == (lhs: Atom, rhs: Atom) -> Bool {
+        return lhs.id == rhs.id
+    }
 }
 
 extension Atom: ParsingTypeToLigandElement {
@@ -24,9 +30,7 @@ extension Atom: ParsingTypeToLigandElement {
             return nil
         }
         let name = String(sublines[3])
-        // id = 1: temporary decision since idk what to put there
-        return Atom(id: 1,
-                    name: name,
+        return Atom(name: name,
                     kind: .from(string: name),
                     vector: .init(x: x, y: y, z: z))
     }

@@ -28,8 +28,16 @@ extension SCNVector3 {
         .init(x: lhs.x + rhs.x, y: lhs.y + rhs.y, z: lhs.z + rhs.z)
     }
 
+    /// Multiplication vector to number
     static func *(lhs: SCNVector3, rhs: Float) -> SCNVector3 {
         .init(x: lhs.x * rhs, y: lhs.y * rhs, z: lhs.z * rhs)
+    }
+
+    /// Vector multiplication
+    static func *(lhs: SCNVector3, rhs: SCNVector3) -> SCNVector3 {
+        .init(x: lhs.y * rhs.z - lhs.z * rhs.y,
+              y: lhs.z * rhs.x - lhs.x * rhs.z,
+              z: lhs.x * rhs.y - lhs.y * rhs.x)
     }
 
     static func /(lhs: SCNVector3, rhs: Float) -> SCNVector3 { // ✅
@@ -64,9 +72,47 @@ extension SCNVector3 {
         return acos(dot / lengthProduct)
     }
 
-    static func cross(_ lhs: SCNVector3, _ rhs: SCNVector3) -> SCNVector3 {
+    static func cross(_ lhs: SCNVector3, _ rhs: SCNVector3) -> SCNVector3 { // ✅
         .init(x: lhs.y * rhs.z - lhs.z * rhs.y,
               y: lhs.z * rhs.x - lhs.x * rhs.z,
               z: lhs.x * rhs.y - lhs.y * rhs.x)
+    }
+
+    struct Plane { // ✅
+        let normal: SCNVector3
+        let point: SCNVector3
+
+        func isApproximatelyEqual(to other: Plane, tolerance: Float = 0.1) -> Bool {
+            // Check if normals are approximately parallel (or anti-parallel)
+            let dotProduct = abs(normal.normalized.x * other.normal.normalized.x +
+                                 normal.normalized.y * other.normal.normalized.y +
+                                 normal.normalized.z * other.normal.normalized.z)
+
+            guard abs(1 - dotProduct) < tolerance else { return false }
+
+            // Check if planes are approximately at the same position
+            let distanceVector = point - other.point
+            let projectionLength = abs(distanceVector.x * normal.normalized.x +
+                                       distanceVector.y * normal.normalized.y +
+                                       distanceVector.z * normal.normalized.z)
+            return projectionLength < tolerance
+        }
+    }
+
+    static func createPlane(through point: SCNVector3, normal: SCNVector3) -> Plane { // ✅
+        return Plane(normal: normal.normalized, point: point)
+    }
+
+    static func createPlaneFromThreePoints(_ p1: SCNVector3,
+                                           _ p2: SCNVector3,
+                                           _ p3: SCNVector3) -> Plane? { // ✅
+        let v1 = p2 - p1
+        let v2 = p3 - p1
+        let normal = SCNVector3.cross(v1, v2)
+
+        // Check if points are collinear
+        guard normal.length > Float.ulpOfOne else { return nil }
+
+        return createPlane(through: p1, normal: normal)
     }
 }
