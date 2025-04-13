@@ -72,7 +72,14 @@ class DetailViewModel: ObservableObject {
                 }
             }
         }
-        
+        for index in 0..<bonds.count {
+            if bonds[index].originIndex < atoms.count {
+                bonds[index].originAtom = atoms[bonds[index].originIndex]
+            }
+            if bonds[index].targetIndex < atoms.count {
+                bonds[index].targetAtom = atoms[bonds[index].targetIndex]
+            }
+        }
         guard !atoms.isEmpty else {
             throw CreatingError.fileParsingFailed
         }

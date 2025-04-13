@@ -31,5 +31,13 @@ extension Bond.Kind {
         case .four: .red
         }
     }
+
+    var radius: CGFloat {
+        switch self {
+        case .one: 0.1
+        case .two: 0.07
+        default: 0.05
+        }
+    }
 }
 

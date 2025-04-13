@@ -20,8 +20,8 @@ struct LigandSceneView: UIViewRepresentable {
         scnView.allowsCameraControl = true
         scnView.backgroundColor = .white
                 
-        let node = SceneKitHelper().createNode(ligandModel: ligandModel)
-        
+        let node = SceneKitBuilder(model: ligandModel).makeNode()
+
         let camera = SCNCamera()
         camera.fieldOfView = 45
         let cameraNode = SCNNode()
@@ -55,7 +55,8 @@ struct LigandSceneView: UIViewRepresentable {
         scene.rootNode.addChildNode(backOmniNode)
         scnView.scene = scene
         
-        let gestureRecognizer = UITapGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.handleTap(_:)))
+        let gestureRecognizer = UITapGestureRecognizer(target: context.coordinator,
+                                                       action: #selector(Coordinator.handleTap(_:)))
         scnView.addGestureRecognizer(gestureRecognizer)
         
         return scnView

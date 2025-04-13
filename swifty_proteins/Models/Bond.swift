@@ -7,10 +7,13 @@
 
 import Foundation
 
-struct Bond {
-    let originAtom: Int
-    let targetAtom: Int
+struct Bond: Equatable {
+    let id = UUID().uuidString
+    let originIndex: Int
+    let targetIndex: Int
     let kind: Bond.Kind
+    var originAtom: Atom?
+    var targetAtom: Atom?
 }
 
 extension Bond: ParsingTypeToLigandElement {
@@ -22,6 +25,6 @@ extension Bond: ParsingTypeToLigandElement {
               let kind = Bond.Kind(rawString: String(sublines[2])) else {
             return nil
         }
-        return Bond(originAtom: origin, targetAtom: target, kind: kind)
+        return Bond(originIndex: origin - 1, targetIndex: target - 1, kind: kind)
     }
 }
