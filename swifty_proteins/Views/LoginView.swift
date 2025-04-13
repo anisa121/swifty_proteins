@@ -10,46 +10,51 @@ import SwiftUI
 
 struct LoginView: View {
     @EnvironmentObject var biometricAuth: BiometricAuth
+    @Environment(\.scenePhase) private var scenePhase
     @State private var showPasswordSetupView = false
     @State private var password = ""
     @State var navigateToMainView = false
     @State private var showAlert = false
-    
+
     var body: some View {
         NavigationStack {
             VStack {
                 Text("Please login to continue")
                     .font(.headline)
                     .padding()
-                if biometricAuth.hasPassword() {
-                    SecureField("Enter the password", text: $password)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .padding()
-                        .frame(maxWidth: 200)
-                    Button("Login") {
-                        if biometricAuth.checkPassword(password) {
-                            biometricAuth.isUnlocked = true
-                            password = ""
-                        } else {
-                            showAlert = true
-                        }
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .padding()
-                    Button("Use Biometrics") {
-                        biometricAuth.authentication()
-                    }
-                    .padding()
+                if biometricAuth.isBiometricsSelected {
+                    Text("Welcome!")
                 } else {
-                    Button("Set Password") {
-                        showPasswordSetupView = true
+                    if biometricAuth.hasPassword() {
+                        SecureField("Enter the password", text: $password)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .padding()
+                            .frame(maxWidth: 200)
+                        Button("Login") {
+                            if biometricAuth.checkPassword(password) {
+                                biometricAuth.isUnlocked = true
+                                password = ""
+                            } else {
+                                showAlert = true
+                            }
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .padding()
+                        Button("Use Biometrics") {
+                            biometricAuth.authentication()
+                        }
+                        .padding()
+                    } else {
+                        Button("Set Password") {
+                            showPasswordSetupView = true
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .padding()
+                        Button("Use Biometrics") {
+                            biometricAuth.authentication()
+                        }
+                        .padding()
                     }
-                    .buttonStyle(.borderedProminent)
-                    .padding()
-                    Button("Use Biometrics") {
-                        biometricAuth.authentication()
-                    }
-                    .padding()
                 }
             }
             .alert("Error", isPresented: $showAlert) {
@@ -71,14 +76,20 @@ struct LoginView: View {
                 password = ""
                 navigateToMainView = false
             }
-            .onChange(of: biometricAuth.isUnlocked) { oldValue, newValue in
-                if newValue {
+            .onChange(of: scenePhase) { _, scenePhase in
+                if scenePhase == .active,
+                   biometricAuth.isBiometricsSelected {
+                    biometricAuth.authentication()
+                }
+            }
+            .onChange(of: biometricAuth.isUnlocked) { _, isUnlocked in
+                if isUnlocked {
                     navigateToMainView = true
                     password = ""
                 }
             }
         }
-    
+
     }
 }
 
