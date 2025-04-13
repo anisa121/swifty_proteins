@@ -23,13 +23,8 @@ struct swifty_proteinsApp: App {
                 }
             }
             .onChange(of: scenePhase) { _, newPhase in
-                switch newPhase {
-                case .background:
+                if newPhase == .background || newPhase == .inactive {
                     biometricAuth.isUnlocked = false
-                case .inactive:
-                    biometricAuth.isUnlocked = false
-                default:
-                    break
                 }
             }
         }
