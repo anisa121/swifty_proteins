@@ -58,8 +58,8 @@ class SceneKitBuilder {
 
                 // Create a vector perpendicular to the bond direction using the plane's normal
                 let bondDirection = (targetAtom.vector - originAtom.vector).normalized
-                let planeNormal = SCNVector3.cross(bondDirection, plane.point).normalized
-                let offset = planeNormal * offsetDistance
+                let offsetDirection = (bondDirection * plane.normal).normalized
+                let offset = offsetDirection * offsetDistance
 
                 // Clone the bond node and position both nodes
                 let bondNode2 = bondNode.clone()
@@ -108,7 +108,6 @@ class SceneKitBuilder {
               let targetAtom = bond.targetAtom,
               atoms.isEmpty == false else { return nil }
 
-        let bondVector = targetAtom.vector - originAtom.vector
         var possiblePlanes: [SCNVector3.Plane] = []
 
         // Create planes using bond points and each atom from the array
@@ -128,7 +127,7 @@ class SceneKitBuilder {
             var addedToGroup = false
 
             for (groupIndex, group) in planeGroups.enumerated() {
-                if let firstPlane = group.first, plane.isApproximatelyEqual(to: firstPlane) {
+                if let firstPlane = group.first, plane.isApproximatelyEqualOriented(to: firstPlane) {
                     planeGroups[groupIndex].append(plane)
                     addedToGroup = true
                     break
