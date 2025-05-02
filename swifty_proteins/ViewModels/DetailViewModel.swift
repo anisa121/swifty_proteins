@@ -10,6 +10,8 @@ import Combine
 
 protocol ParsingTypeToLigandElement {
     static func decodeFrom(line: String) -> Self?
+
+    static func decodeFromFailed(line: String, prevAtomNumber: Int) -> Self?
 }
 
 enum CreatingError: Error {
@@ -69,6 +71,10 @@ class DetailViewModel: ObservableObject {
                     } else if let newBond = element as? Bond {
                         bonds.append(newBond)
                     }
+                } else if let prevOriginNumber = bonds.last?.originIndex,
+                          let element = type.decodeFromFailed(line: line, prevAtomNumber: prevOriginNumber),
+                          let newBond = element as? Bond {
+                    bonds.append(newBond)
                 }
             }
         }
