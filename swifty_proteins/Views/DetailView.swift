@@ -14,7 +14,7 @@ struct DetailView: View {
     let ligandName: String
     @StateObject private var viewModel: DetailViewModel
     @State var showPopup = false
-    @State var selectedAtomName = ""
+    @State var selectedNodeName = ""
     @State private var isSharePresented = false
     @State private var showingSaveSuccess = false
     @State private var showingSaveError = false
@@ -50,7 +50,7 @@ struct DetailView: View {
 
             if showPopup {
                 HStack {
-                    Text(descriptionTitle(for: selectedAtomName))
+                    Text(descriptionTitle(for: selectedNodeName))
                         .padding(8)
                         .background(Color.gray.opacity(0.8))
                         .foregroundStyle(Color.white)
@@ -66,7 +66,7 @@ struct DetailView: View {
 
     private func ligandView(for ligand: Ligand) -> some View {
         let ligandView = LigandSceneView(showPopup: $showPopup,
-                                         selectedAtomName: $selectedAtomName,
+                                         selectedNodeName: $selectedNodeName,
                                          ligandModel: ligand)
         return ligandView
             .navigationTitle(ligandName)
@@ -122,7 +122,7 @@ struct DetailView: View {
 
     private func descriptionTitle(for name: String) -> String {
         var description = name
-        if let kind = Atom.Kind(rawValue: selectedAtomName) {
+        if let kind = Atom.Kind(rawValue: selectedNodeName) {
             description += "  - \(kind.descriptiveName)"
         }
         return description

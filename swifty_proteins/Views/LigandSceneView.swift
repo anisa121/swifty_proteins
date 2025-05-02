@@ -11,14 +11,15 @@ import SceneKit
 
 struct LigandSceneView: UIViewRepresentable {
     @Binding var showPopup: Bool
-    @Binding var selectedAtomName: String
+    @Binding var selectedNodeName: String
     var ligandModel: Ligand
     var previousNodeTapped: SCNNode?
+    var selectionHighlightNode: SCNNode?
     private let scnView = SCNView()
 
     func makeUIView(context: Context) -> some UIView {
         scnView.allowsCameraControl = true
-        scnView.backgroundColor = UIColor(red: 0.95, green: 0.95, blue: 0.95, alpha: 1.0)
+        scnView.backgroundColor = UIColor(red: 0.9, green: 0.9, blue: 0.9, alpha: 1.0)
 
         let node = SceneKitBuilder(model: ligandModel).makeNode()
 
@@ -71,7 +72,7 @@ struct LigandSceneView: UIViewRepresentable {
 
     class Coordinator: NSObject {
         var parent: LigandSceneView
-        
+
         init(_ parent: LigandSceneView) {
             self.parent = parent
         }
@@ -83,15 +84,35 @@ struct LigandSceneView: UIViewRepresentable {
             let touchPlace = gesture.location(in: scene)
             let nodeRecognised = scene.hitTest(touchPlace, options: nil)
             if let node = nodeRecognised.first?.node {
-                DispatchQueue.main.async {
+                if node.name == "OutlineNode" {
+                    self.removeSelection(for: node)
+                } else {
                     if node == self.parent.previousNodeTapped {
-                        self.parent.showPopup.toggle()
+                        self.removeSelection(for: node)
                     } else {
-                        self.parent.selectedAtomName = node.name ?? "Undefined"
-                        self.parent.showPopup = true
-                        self.parent.previousNodeTapped = node
+                        self.addSelection(for: node)
                     }
                 }
+            } else if let lastSelectedNode = self.parent.previousNodeTapped {
+                self.removeSelection(for: lastSelectedNode)
+            }
+        }
+
+        private func addSelection(for node: SCNNode) {
+            DispatchQueue.main.async {
+                self.parent.previousNodeTapped?.removeOutline()
+                node.addOutline()
+                self.parent.selectedNodeName = node.name ?? "Undefined"
+                self.parent.showPopup = true
+                self.parent.previousNodeTapped = node
+            }
+        }
+
+        private func removeSelection(for node: SCNNode) {
+            DispatchQueue.main.async {
+                node.removeOutline()
+                self.parent.showPopup.toggle()
+                self.parent.previousNodeTapped = nil
             }
         }
     }
