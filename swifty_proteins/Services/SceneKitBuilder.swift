@@ -21,27 +21,26 @@ class SceneKitBuilder {
         for atom in model.atoms {
             let atomNode = SCNNode(geometry: SCNSphere(radius: 0.3))
             atomNode.position = atom.vector
-            atomNode.geometry?.firstMaterial?.diffuse.contents = atom.kind.colour
+            atomNode.geometry?.firstMaterial?.diffuse.contents = atom.kind.color
             moleculeNode.addChildNode(atomNode)
             atomNode.name = atom.name
         }
 
         for bond in model.bonds {
-            /*check if there is no error with file and bond info
-             contains valid infoabout origin and targer atom*/
-
             guard let originAtom = bond.originAtom,
                   let targetAtom = bond.targetAtom else { continue }
             let height = originAtom.vector.distance(to: targetAtom.vector)
 
-            let bondNode = SCNNode(geometry: SCNCylinder(radius: bond.kind.radius, height: CGFloat(height)))
+            let bondNode = cylinderNode(radius: bond.kind.radius,
+                                        height: CGFloat(height),
+                                        firstColor: originAtom.kind.color,
+                                        secondColor: targetAtom.kind.color)
 
             bondNode.position = originAtom.vector.middle(between: targetAtom.vector)
             bondNode.name = "\(bond.originIndex)-\(bond.targetIndex)"
             bondNode.look(at: targetAtom.vector,
                           up: moleculeNode.worldUp,
                           localFront: bondNode.worldUp)
-            bondNode.geometry?.firstMaterial?.diffuse.contents = bond.kind.color
 
             switch bond.kind {
             case .one:
@@ -172,5 +171,54 @@ class SceneKitBuilder {
             largestGroup.reduce(SCNVector3(0, 0, 0)) { $0 + $1.point } / Float(largestGroup.count)
 
         return SCNVector3.Plane(normal: averageNormal, point: averagePoint)
+    }
+
+    /// Textured cylinder node
+    func cylinderNode(radius: CGFloat,
+                      height: CGFloat,
+                      firstColor: UIColor,
+                      secondColor: UIColor) -> SCNNode {
+        let cylinderGeometry = SCNCylinder(radius: radius, height: height)
+
+        let textureSize = CGSize(width: 512, height: 256) // Размер текстуры
+        UIGraphicsBeginImageContext(textureSize)
+        guard let context = UIGraphicsGetCurrentContext() else {
+            UIGraphicsEndImageContext()
+            return SCNNode(geometry: cylinderGeometry)
+        }
+
+        context.setFillColor(secondColor.cgColor)
+        context.fill(
+            CGRect(x: 0,
+                   y: 0,
+                   width: textureSize.width,
+                   height: textureSize.height / 2)
+        )
+
+        context.setFillColor(firstColor.cgColor)
+        context.fill(
+            CGRect(x: 0,
+                   y: textureSize.height / 2,
+                   width: textureSize.width,
+                   height: textureSize.height / 2)
+        )
+
+        let textureImage = UIGraphicsGetImageFromCurrentImageContext()!
+        UIGraphicsEndImageContext()
+
+        let sideMaterial = SCNMaterial()
+        sideMaterial.diffuse.contents = textureImage
+        sideMaterial.diffuse.wrapS = .clampToBorder
+        sideMaterial.diffuse.wrapT = .clampToBorder
+
+        let firstCapMaterial = SCNMaterial()
+        firstCapMaterial.diffuse.contents = firstColor
+        let secondCapMaterial = SCNMaterial()
+        firstCapMaterial.diffuse.contents = secondColor
+
+        cylinderGeometry.materials = [sideMaterial, firstCapMaterial, secondCapMaterial]
+
+        let cylinderNode = SCNNode(geometry: cylinderGeometry)
+        return cylinderNode
     }
 }
