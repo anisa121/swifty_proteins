@@ -103,6 +103,26 @@ class SceneKitBuilder {
         return nearbyAtoms
     }
 
+    private func numberOfNeighbors(for atom: Atom) -> Int {
+        var count = 0
+        for bond in model.bonds {
+            if bond.originAtom == atom || bond.targetAtom == atom {
+                count += 1
+            }
+        }
+        return count
+    }
+
+    private func numberOfAtomsWithSingleNeighbor(for atoms: [Atom]) -> Int {
+        var atomsWithSingleNeighbor = 0
+        for atom in atoms {
+            if numberOfNeighbors(for: atom) == 1 {
+                atomsWithSingleNeighbor += 1
+            }
+        }
+        return atomsWithSingleNeighbor
+    }
+
     private func planeFor(bond: Bond, atoms: [Atom]) -> SCNVector3.Plane? {
         guard let originAtom = bond.originAtom,
               let targetAtom = bond.targetAtom,
@@ -112,12 +132,14 @@ class SceneKitBuilder {
 
         // Create planes using bond points and each atom from the array
         for atom in atoms {
-            if let plane = SCNVector3.createPlaneFromThreePoints(
-                originAtom.vector,
-                targetAtom.vector,
-                atom.vector
-            ) {
+            if let plane = SCNVector3.createPlaneFromThreePoints(originAtom.vector,
+                                                                 targetAtom.vector,
+                                                                 atom.vector) {
                 possiblePlanes.append(plane)
+                if numberOfAtomsWithSingleNeighbor(for: [originAtom, targetAtom, atom]) == 2 {
+                    // Double voting for corner case
+                    possiblePlanes.append(plane)
+                }
             }
         }
 
@@ -127,7 +149,8 @@ class SceneKitBuilder {
             var addedToGroup = false
 
             for (groupIndex, group) in planeGroups.enumerated() {
-                if let firstPlane = group.first, plane.isApproximatelyEqualOriented(to: firstPlane) {
+                if let firstPlane = group.first,
+                   plane.isApproximatelyEqualOriented(to: firstPlane) {
                     planeGroups[groupIndex].append(plane)
                     addedToGroup = true
                     break

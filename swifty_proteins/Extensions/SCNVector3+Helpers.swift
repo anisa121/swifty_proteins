@@ -31,7 +31,7 @@ extension SCNVector3 {
     }
 
     /// Vector multiplication
-    static func *(lhs: SCNVector3, rhs: SCNVector3) -> SCNVector3 {
+    static func *(lhs: SCNVector3, rhs: SCNVector3) -> SCNVector3 { // ✅
         .init(x: lhs.y * rhs.z - lhs.z * rhs.y,
               y: lhs.z * rhs.x - lhs.x * rhs.z,
               z: lhs.x * rhs.y - lhs.y * rhs.x)
@@ -39,7 +39,7 @@ extension SCNVector3 {
 
     /// Scalar multiplication of vectors
 
-    static func scalarProduct(_ vector1: SCNVector3, _ vector2: SCNVector3) -> Float {
+    static func scalarProduct(_ vector1: SCNVector3, _ vector2: SCNVector3) -> Float { // ✅
         abs(vector1.length * vector2.length) * cos(angle(from: vector1, to: vector2))
     }
 
@@ -75,17 +75,16 @@ extension SCNVector3 {
 
     // MARK: - Static methods
 
-//    acos(vector1 * vector2 / (vector1.length * vector2.length))
     static func angle(from: SCNVector3, to: SCNVector3) -> Float {
         let dot = from.x * to.x + from.y * to.y + from.z * to.z
         let lengthProduct = from.length * to.length
-        return acos(dot / lengthProduct)
-    }
-
-    static func cross(_ lhs: SCNVector3, _ rhs: SCNVector3) -> SCNVector3 { // ✅
-        .init(x: lhs.y * rhs.z - lhs.z * rhs.y,
-              y: lhs.z * rhs.x - lhs.x * rhs.z,
-              z: lhs.x * rhs.y - lhs.y * rhs.x)
+        var value = dot / lengthProduct
+        if value > 1 || value < -1,
+           abs(value.remainder(dividingBy: 1)) < 0.001 {
+            value = value - value.remainder(dividingBy: 1)
+        }
+        let angle = acos(value)
+        return angle.isNaN ? 0 : angle
     }
 
     struct Plane { // ✅
