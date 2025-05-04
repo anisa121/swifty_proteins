@@ -9,88 +9,55 @@ import Foundation
 import SwiftUI
 
 struct LoginView: View {
-    @EnvironmentObject var biometricAuth: BiometricAuth
+    @StateObject private var viewModel: LoginViewModel
+     let authService: BiometricAuth
     @Environment(\.scenePhase) private var scenePhase
-    @State private var showPasswordSetupView = false
-    @State private var password = ""
-    @State var navigateToMainView = false
-    @State private var showAlert = false
 
-    var body: some View {
+
+      init() {
+          let service = BiometricAuth()
+          authService = service
+          _viewModel = StateObject(wrappedValue: LoginViewModel(biometricAuth: service))
+      }
+
+      var body: some View {
         NavigationStack {
-            VStack {
-                Text("Please login to continue")
-                    .font(.headline)
-                    .padding()
-                if biometricAuth.isBiometricsSelected {
-                    Text("Welcome!")
-                } else {
-                    if biometricAuth.hasPassword() {
-                        SecureField("Enter the password", text: $password)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .padding()
-                            .frame(maxWidth: 200)
-                        Button("Login") {
-                            if biometricAuth.checkPassword(password) {
-                                biometricAuth.isUnlocked = true
-                                password = ""
-                            } else {
-                                showAlert = true
-                            }
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .padding()
-                        Button("Use Biometrics") {
-                            biometricAuth.authentication()
-                        }
-                        .padding()
-                    } else {
-                        Button("Set Password") {
-                            showPasswordSetupView = true
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .padding()
-                        Button("Use Biometrics") {
-                            biometricAuth.authentication()
-                        }
-                        .padding()
-                    }
-                }
-            }
-            .alert("Error", isPresented: $showAlert) {
-                Button("OK", role: .cancel) {
-                    showAlert.toggle()
-                    password = ""
-                }
-            } message: {
-                Text("Wrong password")
-            }
-            .navigationDestination(isPresented: $navigateToMainView) {
-                MainView()
-                    .environmentObject(biometricAuth)
-            }
-            .sheet(isPresented: $showPasswordSetupView) {
-                PasswordSetupView(biometricAuth: biometricAuth)
-            }
-            .onAppear() {
-                password = ""
-                navigateToMainView = false
-            }
-            .onChange(of: scenePhase) { _, scenePhase in
-                if scenePhase == .active,
-                   biometricAuth.isBiometricsSelected {
-                    biometricAuth.authentication()
-                }
-            }
-            .onChange(of: biometricAuth.isUnlocked) { _, isUnlocked in
-                if isUnlocked {
-                    navigateToMainView = true
-                    password = ""
-                }
-            }
-        }
+          VStack(spacing: 16) {
+            Text("Please login to continue").font(.headline)
 
-    }
+            if viewModel.showPasswordSetup {
+              Button("Set Password") {
+                  viewModel.showPasswordSetup = true
+              }
+                .buttonStyle(.borderedProminent)
+                Button("Use Biometrics") { viewModel.useBiometricsTapped() }
+            }
+            else {
+                SecureField("Password", text: $viewModel.password)
+                .textFieldStyle(.roundedBorder)
+                .frame(maxWidth: 200)
+
+                Button("Login") { viewModel.loginTapped() }
+                .buttonStyle(.borderedProminent)
+
+                Button("Use Biometrics") { viewModel.useBiometricsTapped() }
+            }
+          }
+          .padding()
+          .alert("Error", isPresented: $viewModel.showAlert) {
+              Button("OK", role: .cancel) { viewModel.password = "" }
+          } message: {
+            Text("Wrong password")
+          }
+          .navigationDestination(isPresented: $viewModel.navigateToMain) {
+              MainView().environmentObject(viewModel.biometricAuth as! BiometricAuth)
+          }
+        }
+        .onChange(of: scenePhase) { viewModel.handleScenePhase($0) }
+        .sheet(isPresented: $viewModel.showPasswordSetup) {
+            PasswordSetupView(biometricAuth: authService)
+        }
+      }
 }
 
 #Preview {

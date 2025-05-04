@@ -8,22 +8,26 @@
 import SwiftUI
 
 struct PasswordSetupView: View {
+    @ObservedObject var biometricAuth: BiometricAuth
     @State private var password: String = ""
     @State private var confirmPassword = ""
-    @StateObject private var biometricAuth: BiometricAuth
     @State private var showError = false
     @Environment(\.dismiss) private var dismiss
-    
+
     var body: some View {
         VStack(spacing: 20) {
             Text("Setup your new password")
                 .padding(.top)
                 .font(.title)
-                .padding()
+
             SecureField("Enter the password", text: $password)
-                .padding()
+                .textFieldStyle(.roundedBorder)
+                .padding(.horizontal)
+
             SecureField("Confirm the password", text: $confirmPassword)
-                .padding()
+                .textFieldStyle(.roundedBorder)
+                .padding(.horizontal)
+
             Button("Submit") {
                 if password == confirmPassword {
                     if biometricAuth.setPassword(password) {
@@ -45,10 +49,6 @@ struct PasswordSetupView: View {
         } message: {
             Text("Please make sure passwords match and fields are not empty")
         }
-    }
-    
-    init(biometricAuth: BiometricAuth) {
-        self._biometricAuth = StateObject(wrappedValue: biometricAuth)
     }
 }
 

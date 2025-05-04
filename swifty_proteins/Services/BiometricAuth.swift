@@ -9,32 +9,54 @@ import Foundation
 import Security
 import LocalAuthentication
 
-class BiometricAuth: ObservableObject {
+protocol BiometricAuthProtocol {
+    var isBiometricsSelected: Bool {get set}
+    func hasPassword() -> Bool
+    func checkPassword(_ password: String?) -> Bool
+    func authentication() async -> Bool
+    func lock()
+    var isUnlocked: Bool {get}
+}
+
+class BiometricAuth: ObservableObject, BiometricAuthProtocol {
     @Published var isUnlocked = false
     private let keychainPasswordKey = "com.swiftyproteins.userpassword"
 
     var isBiometricsSelected: Bool {
-        UserDefaults.standard.bool(forKey: "isBiometricsSelected")
+      get { UserDefaults.standard.bool(forKey: "isBiometricsSelected") }
+      set { UserDefaults.standard.set(newValue, forKey: "isBiometricsSelected") }
     }
 
-    func authentication() {
+
+    func lock() {
+        self.isUnlocked = false
+    }
+
+    func authentication() async -> Bool {
         if isBiometricsSelected == false {
-            UserDefaults.standard.set(true, forKey: "isBiometricsSelected")
+            isBiometricsSelected = true
         }
         let context = LAContext()
         var error: NSError?
         let reason = "Allow to access"
-
-        if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
-            context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics,
-                                   localizedReason: reason) { success, authError in
+        guard context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) else {
+            return false
+        }
+        return await withCheckedContinuation { continuation in
                 DispatchQueue.main.async {
-                    if success {
-                        self.isUnlocked = true
+                    context.evaluatePolicy(
+                        .deviceOwnerAuthenticationWithBiometrics,
+                        localizedReason: reason
+                    ) { success, _ in
+                        DispatchQueue.main.async {
+                            if success {
+                                self.isUnlocked = true
+                            }
+                            continuation.resume(returning: success)
+                        }
                     }
                 }
             }
-        }
     }
 
     func setPassword(_ password: String) -> Bool {
