@@ -10,7 +10,7 @@ import SwiftUI
 
 struct LoginView: View {
     @StateObject private var viewModel: LoginViewModel
-     let authService: BiometricAuth
+    let authService: BiometricAuth
     @Environment(\.scenePhase) private var scenePhase
 
       init() {
@@ -19,52 +19,44 @@ struct LoginView: View {
           _viewModel = StateObject(wrappedValue: LoginViewModel(biometricAuth: service))
       }
 
-      var body: some View {
+    var body: some View {
         NavigationStack {
-          VStack(spacing: 16) {
-            Text("Please login to continue")
-                  .font(.headline)
+            VStack(spacing: 16) {
+                Text("Please login to continue")
+                    .font(.headline)
 
-            if viewModel.showPasswordSetup {
-                FirstLoginView(viewModel: viewModel)
+                if viewModel.showPasswordSetup {
+                    firstLoginView
+                }
+                else {
+                    credentialsLoginView
+                }
             }
-            else {
-                CredentialsLoginView(viewModel: viewModel)
+            .padding()
+            .alert("Error", isPresented: $viewModel.showAlert) {
+                Button("OK", role: .cancel) { viewModel.password = "" }
+            } message: {
+                Text("Wrong password")
             }
-          }
-          .padding()
-          .alert("Error", isPresented: $viewModel.showAlert) {
-              Button("OK", role: .cancel) { viewModel.password = "" }
-          } message: {
-            Text("Wrong password")
-          }
-          .navigationDestination(isPresented: $viewModel.navigateToMain) {
-              MainView().environmentObject(viewModel.biometricAuth as! BiometricAuth)
-          }
+            .navigationDestination(isPresented: $viewModel.navigateToMain) {
+                MainView().environmentObject(viewModel.biometricAuth as! BiometricAuth)
+            }
         }
         .onChange(of: scenePhase) { viewModel.handleScenePhase($0) }
         .sheet(isPresented: $viewModel.showPasswordSetup) {
             PasswordSetupView(biometricAuth: authService)
         }
-      }
-}
-
-struct FirstLoginView: View {
-    @ObservedObject var viewModel: LoginViewModel
-    var body: some View {
+    }
+    var firstLoginView: some View {
         VStack(spacing: 16) {
             Button("Set Password") {
                 viewModel.showPasswordSetup = true
             }
-              .buttonStyle(.borderedProminent)
-              Button("Use Biometrics") { viewModel.useBiometricsTapped() }
-          }
+            .buttonStyle(.borderedProminent)
+            Button("Use Biometrics") { viewModel.useBiometricsTapped() }
         }
-}
-
-struct CredentialsLoginView: View {
-    @ObservedObject var viewModel: LoginViewModel
-    var body: some View {
+    }
+    var credentialsLoginView: some View {
         VStack(spacing: 16) {
             SecureField("Password", text: $viewModel.password)
                 .textFieldStyle(.roundedBorder)
