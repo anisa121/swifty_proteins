@@ -22,16 +22,6 @@ extension Bond {
 }
 
 extension Bond.Kind {
-    var color: UIColor {
-        return switch self {
-        case .one: .white
-        case .two: .blue
-        case .three: .green
-            //Aromatic
-        case .four: .red
-        }
-    }
-
     var radius: CGFloat {
         switch self {
         case .one: 0.1

@@ -15,13 +15,18 @@ struct MainView: View {
 
     var body: some View {
         NavigationStack {
+            TextField("Search", text: $searchText)
+                .textFieldStyle(.roundedBorder)
+                .padding(.horizontal, 8)
+
             List(searchResults) { item in
                 NavigationLink(destination: DetailView(modelId: item.id, ligandName: item.name)) {
                     Text(item.name)
                 }
             }
+            .contentMargins(12, for: .scrollContent)
             .navigationTitle("Ligands List")
-            .searchable(text: $searchText)
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
 

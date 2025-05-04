@@ -34,4 +34,8 @@ extension Atom: ParsingTypeToLigandElement {
                     kind: .from(string: name),
                     vector: .init(x: x, y: y, z: z))
     }
+
+    static func decodeFromFailed(line: String, prevAtomNumber: Int) -> Atom? {
+        return nil
+    }
 }

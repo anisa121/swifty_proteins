@@ -36,9 +36,9 @@ extension Atom {
 }
 
 extension Atom.Kind {
-    var colour: UIColor {
+    var color: UIColor {
         return switch self {
-        case .hydrogen: UIColor(white: 0.85, alpha: 1.0)
+        case .hydrogen: .white
         case .carbon: .black
         case .nitrogen: .blue
         case .oxygen: .red
