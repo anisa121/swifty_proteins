@@ -13,7 +13,6 @@ struct LoginView: View {
      let authService: BiometricAuth
     @Environment(\.scenePhase) private var scenePhase
 
-
       init() {
           let service = BiometricAuth()
           authService = service
@@ -23,24 +22,14 @@ struct LoginView: View {
       var body: some View {
         NavigationStack {
           VStack(spacing: 16) {
-            Text("Please login to continue").font(.headline)
+            Text("Please login to continue")
+                  .font(.headline)
 
             if viewModel.showPasswordSetup {
-              Button("Set Password") {
-                  viewModel.showPasswordSetup = true
-              }
-                .buttonStyle(.borderedProminent)
-                Button("Use Biometrics") { viewModel.useBiometricsTapped() }
+                FirstLoginView(viewModel: viewModel)
             }
             else {
-                SecureField("Password", text: $viewModel.password)
-                .textFieldStyle(.roundedBorder)
-                .frame(maxWidth: 200)
-
-                Button("Login") { viewModel.loginTapped() }
-                .buttonStyle(.borderedProminent)
-
-                Button("Use Biometrics") { viewModel.useBiometricsTapped() }
+                CredentialsLoginView(viewModel: viewModel)
             }
           }
           .padding()
@@ -58,6 +47,33 @@ struct LoginView: View {
             PasswordSetupView(biometricAuth: authService)
         }
       }
+}
+
+struct FirstLoginView: View {
+    @ObservedObject var viewModel: LoginViewModel
+    var body: some View {
+        VStack(spacing: 16) {
+            Button("Set Password") {
+                viewModel.showPasswordSetup = true
+            }
+              .buttonStyle(.borderedProminent)
+              Button("Use Biometrics") { viewModel.useBiometricsTapped() }
+          }
+        }
+}
+
+struct CredentialsLoginView: View {
+    @ObservedObject var viewModel: LoginViewModel
+    var body: some View {
+        VStack(spacing: 16) {
+            SecureField("Password", text: $viewModel.password)
+                .textFieldStyle(.roundedBorder)
+                .frame(maxWidth: 200)
+            Button("Login") { viewModel.loginTapped() }
+                .buttonStyle(.borderedProminent)
+            Button("Use Biometrics") { viewModel.useBiometricsTapped() }
+        }
+    }
 }
 
 #Preview {
