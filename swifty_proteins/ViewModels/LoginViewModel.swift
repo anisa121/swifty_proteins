@@ -13,6 +13,7 @@ class LoginViewModel: ObservableObject {
     @Published var showPasswordSetup = false
     @Published var showAlert = false
     @Published var navigateToMain = false
+    @State private var task: Task<Void, Never>?
 
     var biometricAuth: BiometricAuthProtocol
 
@@ -22,7 +23,7 @@ class LoginViewModel: ObservableObject {
     }
 
     func viewFlow() {
-        if !biometricAuth.hasPassword() && !biometricAuth.isBiometricsSelected {
+        if biometricAuth.hasPassword() == false && biometricAuth.isBiometricsSelected == false {
             showPasswordSetup = true
             return
         }
@@ -31,12 +32,16 @@ class LoginViewModel: ObservableObject {
           return
         }
         if biometricAuth.isBiometricsSelected {
-            Task {
-                let success = await biometricAuth.authentication()
-                if success {
+            self.task = Task {
+                let result = await biometricAuth.authentication()
+                switch result {
+                case .success:
                     DispatchQueue.main.async {
                         self.navigateToMain = true
                     }
+                case .failure, .userCancelled:
+                    task?.cancel()
+                    return
                 }
             }
         }
@@ -58,8 +63,11 @@ class LoginViewModel: ObservableObject {
         Task {
             let success = await biometricAuth.authentication()
             await MainActor.run {
-                if success {
+                switch success {
+                case .success:
                     self.navigateToMain = true
+                case .failure, .userCancelled:
+                    return
                 }
             }
         }
@@ -67,9 +75,15 @@ class LoginViewModel: ObservableObject {
 
     func handleScenePhase(_ newPhase: ScenePhase) {
         switch newPhase {
-        case .active where navigateToMain == false:
-            viewFlow()
+        case .active:
+            if navigateToMain == false,
+               let value = UserDefaults().value(forKey: "appWasInBackground") as? Bool,
+               value {
+                UserDefaults().set(false, forKey: "appWasInBackground")
+                viewFlow()
+            }
         case .background:
+            UserDefaults().set(true, forKey: "appWasInBackground")
             DispatchQueue.main.async {
                 self.biometricAuth.lock()
                 self.navigateToMain = false

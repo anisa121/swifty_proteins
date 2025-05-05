@@ -42,7 +42,9 @@ struct LoginView: View {
                 MainView().environmentObject(viewModel.biometricAuth as! BiometricAuth)
             }
         }
-        .onChange(of: scenePhase) { viewModel.handleScenePhase($0) }
+        .onChange(of: scenePhase) {
+            viewModel.handleScenePhase($0)
+        }
         .sheet(isPresented: $viewModel.showPasswordSetup) {
             PasswordSetupView(biometricAuth: authService)
         }
